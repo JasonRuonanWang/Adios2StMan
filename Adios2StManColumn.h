@@ -22,63 +22,60 @@
 
 #include "Adios2StMan.h"
 
-#include <casacore/tables/DataMan/StManColumn.h>
 #include <casacore/casa/Arrays/Array.h>
+#include <casacore/tables/DataMan/StManColumn.h>
 
 namespace casacore {
 
-    class Adios2StManColumn : public StManColumn
-    {
-        public:
+class Adios2StManColumn : public StManColumn {
+public:
+  Adios2StManColumn(Adios2StMan *aParent, int aDataType, uInt aColNr);
+  ~Adios2StManColumn();
 
-            Adios2StManColumn (Adios2StMan* aParent, int aDataType, uInt aColNr);
-            ~Adios2StManColumn ();
+  IPosition getShapeColumn();
 
-            IPosition getShapeColumn();
+  int getDataTypeSize();
+  int getDataType();
+  void setColumnName(String aName);
+  String getColumnName();
 
-            int getDataTypeSize();
-            int getDataType();
-            void setColumnName(String aName);
-            String getColumnName();
+  // *** access a row for an array column ***
+  virtual void putArrayV(uInt rownr, const void *dataPtr);
+  virtual void getArrayV(uInt rownr, void *dataPtr);
 
-            // *** access a row for an array column ***
-            virtual void putArrayV (uInt rownr, const void* dataPtr);
-            virtual void getArrayV (uInt rownr, void* dataPtr);
+  // *** access a slice of a row for an array column ***
+  // *** inactive by default
+  // *** only active when canAccessSlice() returns true in child class
+  virtual void getSliceV(uInt aRowNr, const Slicer &ns, void *dataPtr);
 
-            // *** access a slice of a row for an array column ***
-            // *** inactive by default
-            // *** only active when canAccessSlice() returns true in child class
-            virtual void getSliceV (uInt aRowNr, const Slicer& ns, void* dataPtr);
+  // *** access all rows for an array column ***
+  // *** inactive by default
+  // *** only active when canAccessArrayColumn() returns true in child class
+  virtual void getArrayColumnV(void *dataPtr);
 
-            // *** access all rows for an array column ***
-            // *** inactive by default
-            // *** only active when canAccessArrayColumn() returns true in child class
-            virtual void getArrayColumnV(void* dataPtr);
+  // *** access a slice of all rows for an array column ***
+  // *** inactive by default
+  // *** only active when canAccessColumnSlice() returns true in child class
+  virtual void getColumnSliceV(const Slicer &ns, void *dataPtr);
 
-            // *** access a slice of all rows for an array column ***
-            // *** inactive by default
-            // *** only active when canAccessColumnSlice() returns true in child class
-            virtual void getColumnSliceV(const Slicer& ns, void *dataPtr);
+protected:
+  void getArrayWrapper(uint64_t rowStart, uint64_t nrRows, const Slicer &ns,
+                       void *dataPtr);
+  virtual void getArrayMetaV(uint64_t rowStart, uint64_t nrRows,
+                             const Slicer &ns, void *data);
+  virtual void putArrayMetaV(uint64_t row, const void *data);
 
-        protected:
+  // StMan pointer
+  Adios2StMan *itsStManPtr;
 
-            void getArrayWrapper(uint64_t rowStart, uint64_t nrRows, const Slicer& ns, void* dataPtr);
-            virtual void getArrayMetaV (uint64_t rowStart, uint64_t nrRows, const Slicer& ns, void* data);
-            virtual void putArrayMetaV (uint64_t row, const void* data);
-
-            // StMan pointer
-            Adios2StMan *itsStManPtr;
-
-            // Column property
-            String itsColumnName;
-            char itsColumnType;  // 's' for scalar, 'd' for direct array, 'i' for indirect array
-            IPosition itsShape;
-            int itsDataTypeSize;
-            int itsCasaDataType;
-
-    };
-
+  // Column property
+  String itsColumnName;
+  char itsColumnType; // 's' for scalar, 'd' for direct array, 'i' for indirect
+                      // array
+  IPosition itsShape;
+  int itsDataTypeSize;
+  int itsCasaDataType;
+};
 }
-
 
 #endif

@@ -1,16 +1,17 @@
 ifeq ($(VENDOR),cray)
 	CC=cc -dynamic
 else
-	CC=g++
+	CC=mpic++
 endif
 
 TARGET=libadios2stman.so
 SRC=Adios2StMan.cc Adios2StManColumn.cc
 DIRS=benchmark tests
 
+CXXFLAGS=-DHAVE_MPI
 
 $(TARGET):$(SRC)
-	$(CC) $(SRC) -fPIC --shared -o $(TARGET) -lcasa_tables -lcasa_casa -ladios2 -std=c++11
+	$(CC) $(CXXFLAGS) $(SRC) -fPIC --shared -o $(TARGET) -lcasa_tables -lcasa_casa -ladios2 -std=c++11
 
 ifdef CASA_LIB
 	cp $(TARGET) $(CASA_LIB)
