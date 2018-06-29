@@ -27,7 +27,8 @@
 
 namespace casacore {
 
-class Adios2StManColumn : public StManColumn {
+class Adios2StManColumn : public StManColumn
+{
 public:
   Adios2StManColumn(Adios2StMan *aParent, int aDataType, uInt aColNr);
   ~Adios2StManColumn();
@@ -65,12 +66,10 @@ protected:
                              const Slicer &ns, void *data);
   virtual void putArrayMetaV(uint64_t row, const void *data);
 
-  // StMan pointer
   Adios2StMan *itsStManPtr;
 
-  // Column property
   String itsColumnName;
-  char itsColumnType; // 's' for scalar, 'd' for direct array, 'i' for indirect
+  char itsColumnType; // 's'-scalar, 'd'-direct array, 'i'-indirect
                       // array
   IPosition itsShape;
   int itsDataTypeSize;

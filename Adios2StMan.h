@@ -41,6 +41,7 @@ public:
               std::map<std::string, std::string> engineParams,
               std::vector<std::map<std::string, std::string>> transportParams);
 #endif
+  void Adios2StManCommon();
   ~Adios2StMan() = default;
   virtual DataManager *clone() const;
   virtual String dataManagerType() const;
@@ -69,7 +70,6 @@ public:
 private:
   String itsDataManName = "Adios2StMan";
   uInt itsNrRows;
-  uInt itsNrCols;
   int itsStManColumnType;
   PtrBlock<Adios2StManColumn *> itsColumnPtrBlk;
 

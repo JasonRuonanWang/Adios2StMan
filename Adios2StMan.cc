@@ -1,11 +1,13 @@
-#include "Adios2StManColumn.h"
+#include "Adios2StManTemplateColumn.h"
 
 namespace casacore {
 
 #ifdef HAVE_MPI
 Adios2StMan::Adios2StMan(MPI_Comm mpiComm)
     : DataManager(), itsAdios(adios2::ADIOS(mpiComm)),
-      itsAdiosIO(itsAdios.DeclareIO("Adios2StMan")) {}
+    itsAdiosIO(itsAdios.DeclareIO("Adios2StMan")) {
+          Adios2StManCommon();
+    }
 
 Adios2StMan::Adios2StMan(
     MPI_Comm mpiComm, std::string engineType,
@@ -14,22 +16,45 @@ Adios2StMan::Adios2StMan(
     : DataManager(), itsAdios(adios2::ADIOS(mpiComm)),
       itsAdiosIO(itsAdios.DeclareIO("Adios2StMan")),
       itsAdiosEngineType(engineType), itsAdiosEngineParams(engineParams),
-      itsAdiosTransportParamsVec(transportParams) {}
+      itsAdiosTransportParamsVec(transportParams) {
+          Adios2StManCommon();
+      }
 #endif
 
 Adios2StMan::Adios2StMan()
-    : DataManager(), itsAdiosIO(itsAdios.DeclareIO("Adios2StMan")) {}
+    : DataManager(), itsAdiosIO(itsAdios.DeclareIO("Adios2StMan")) {
+          Adios2StManCommon();
+    }
 
 Adios2StMan::Adios2StMan(
     std::string engineType, std::map<std::string, std::string> engineParams,
     std::vector<std::map<std::string, std::string>> transportParams)
     : DataManager(), itsAdiosIO(itsAdios.DeclareIO("Adios2StMan")),
       itsAdiosEngineType(engineType), itsAdiosEngineParams(engineParams),
-      itsAdiosTransportParamsVec(transportParams) {}
+      itsAdiosTransportParamsVec(transportParams) {
+          Adios2StManCommon();
+      }
 
 DataManager *Adios2StMan::makeObject(const casa::String &aDataManType,
                                      const casa::Record &spec) {
   return new Adios2StMan();
+}
+
+void Adios2StMan::Adios2StManCommon(){
+    if(itsAdiosEngineType.empty() == false){
+        itsAdiosIO.SetEngine(itsAdiosEngineType);
+    }
+    if(itsAdiosEngineParams.empty() == false){
+        itsAdiosIO.SetParameters(itsAdiosEngineParams);
+    }
+    for (size_t i = 0; i < itsAdiosTransportParamsVec.size(); ++i){
+        std::string transportName = std::to_string(i);
+        auto j = itsAdiosTransportParamsVec[i].find("Name");
+        if(j != itsAdiosTransportParamsVec[i].end()){
+            transportName = j->second;
+        }
+        itsAdiosIO.AddTransport(transportName, itsAdiosTransportParamsVec[i]);
+    }
 }
 
 DataManager *Adios2StMan::clone() const { return new Adios2StMan; }
@@ -39,8 +64,8 @@ String Adios2StMan::dataManagerType() const { return itsDataManName; }
 void Adios2StMan::addRow(uInt aNrRows) {}
 
 void Adios2StMan::create(uInt aNrRows) {
-  itsNrRows = aNrRows;
-  itsNrCols = ncolumn();
+    itsNrRows = aNrRows;
+    itsAdiosEngine = itsAdiosIO.Open(fileName(), adios2::Mode::Write);
 }
 
 void Adios2StMan::open(uInt aNrRows, AipsIO &ios) {
