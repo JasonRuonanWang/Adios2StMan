@@ -42,7 +42,7 @@ public:
               std::vector<std::map<std::string, std::string>> transportParams);
 #endif
   void Adios2StManCommon();
-  ~Adios2StMan() = default;
+  virtual ~Adios2StMan();
   virtual DataManager *clone() const;
   virtual String dataManagerType() const;
   virtual String dataManagerName() const;
@@ -75,7 +75,7 @@ private:
 
   adios2::ADIOS itsAdios;
   adios2::IO itsAdiosIO;
-  adios2::Engine itsAdiosEngine;
+  std::shared_ptr<adios2::Engine> itsAdiosEngine;
 #ifdef HAVE_MPI
   MPI_Comm itsMpiComm = MPI_COMM_WORLD;
 #endif

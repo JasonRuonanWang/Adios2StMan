@@ -27,21 +27,20 @@
 
 namespace casacore {
 
-class Adios2StManColumn : public StManColumn
-{
+class Adios2StManColumn : public StManColumn {
 public:
-  Adios2StManColumn(Adios2StMan *aParent, int aDataType, uInt aColNr);
-  ~Adios2StManColumn();
+  Adios2StManColumn(Adios2StMan *aParent, int aDataType, uInt aColNr,
+                    String aColName, adios2::IO aAdiosIO);
 
-  IPosition getShapeColumn();
+  virtual void create(uInt aNrRows, std::shared_ptr<adios2::Engine> aAdiosEngine)=0;
+  virtual void setShapeColumn(const IPosition& aShape);
+  virtual IPosition shape(uInt aRowNr);
 
   int getDataTypeSize();
   int getDataType();
-  void setColumnName(String aName);
   String getColumnName();
 
   // *** access a row for an array column ***
-  virtual void putArrayV(uInt rownr, const void *dataPtr);
   virtual void getArrayV(uInt rownr, void *dataPtr);
 
   // *** access a slice of a row for an array column ***
@@ -62,18 +61,24 @@ public:
 protected:
   void getArrayWrapper(uint64_t rowStart, uint64_t nrRows, const Slicer &ns,
                        void *dataPtr);
-  virtual void getArrayMetaV(uint64_t rowStart, uint64_t nrRows,
-                             const Slicer &ns, void *data);
-  virtual void putArrayMetaV(uint64_t row, const void *data);
+  virtual void getArrayCommonV(uint64_t rowStart, uint64_t nrRows,
+                               const Slicer &ns, void *data);
+  virtual void putArrayCommonV(uint64_t row, const void *data);
 
   Adios2StMan *itsStManPtr;
 
   String itsColumnName;
-  char itsColumnType; // 's'-scalar, 'd'-direct array, 'i'-indirect
-                      // array
-  IPosition itsShape;
+  char itsColumnType; // 's'-scalar, 'd'-direct array, 'i'-indirect array
+  IPosition itsCasaShape;
   int itsDataTypeSize;
   int itsCasaDataType;
+
+  adios2::IO itsAdiosIO;
+  std::shared_ptr<adios2::Engine> itsAdiosEngine;
+  std::string itsAdiosDataType;
+  adios2::Dims itsAdiosShape;
+  adios2::Dims itsAdiosSingleRowStart;
+  adios2::Dims itsAdiosSingleRowCount;
 };
 }
 
