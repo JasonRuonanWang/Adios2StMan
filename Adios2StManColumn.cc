@@ -22,7 +22,7 @@
 namespace casacore {
 
 Adios2StManColumn::Adios2StManColumn(Adios2StMan *aParent, int aDataType,
-                                     uInt aColNr, String aColName, adios2::IO aAdiosIO)
+                                     uInt aColNr, String aColName, std::shared_ptr<adios2::IO> aAdiosIO)
     : StManColumn(aDataType), itsStManPtr(aParent), itsCasaDataType(aDataType),
       itsCasaShape(0), itsAdiosIO(aAdiosIO)
     {

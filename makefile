@@ -6,7 +6,7 @@ endif
 
 TARGET=libadios2stman.so
 SRC=Adios2StMan.cc Adios2StManColumn.cc
-DIRS=benchmark tests
+DIRS=tests
 
 CXXFLAGS=-DHAVE_MPI
 

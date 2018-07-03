@@ -30,7 +30,7 @@ namespace casacore {
 class Adios2StManColumn : public StManColumn {
 public:
   Adios2StManColumn(Adios2StMan *aParent, int aDataType, uInt aColNr,
-                    String aColName, adios2::IO aAdiosIO);
+                    String aColName, std::shared_ptr<adios2::IO> aAdiosIO);
 
   virtual void create(uInt aNrRows, std::shared_ptr<adios2::Engine> aAdiosEngine)=0;
   virtual void setShapeColumn(const IPosition& aShape);
@@ -73,7 +73,7 @@ protected:
   int itsDataTypeSize;
   int itsCasaDataType;
 
-  adios2::IO itsAdiosIO;
+  std::shared_ptr<adios2::IO> itsAdiosIO;
   std::shared_ptr<adios2::Engine> itsAdiosEngine;
   std::string itsAdiosDataType;
   adios2::Dims itsAdiosShape;

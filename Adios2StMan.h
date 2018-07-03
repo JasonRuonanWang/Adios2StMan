@@ -41,7 +41,9 @@ public:
               std::map<std::string, std::string> engineParams,
               std::vector<std::map<std::string, std::string>> transportParams);
 #endif
-  void Adios2StManCommon();
+  void Adios2StManCommon(const std::string &engineType,
+              const std::map<std::string, std::string> &engineParams,
+              const std::vector<std::map<std::string, std::string>> &transportParams);
   virtual ~Adios2StMan();
   virtual DataManager *clone() const;
   virtual String dataManagerType() const;
@@ -73,15 +75,19 @@ private:
   int itsStManColumnType;
   PtrBlock<Adios2StManColumn *> itsColumnPtrBlk;
 
-  adios2::ADIOS itsAdios;
-  adios2::IO itsAdiosIO;
+  std::shared_ptr<adios2::ADIOS> itsAdios;
+  std::shared_ptr<adios2::IO> itsAdiosIO;
   std::shared_ptr<adios2::Engine> itsAdiosEngine;
+
+
+  static std::string itsAdiosEngineType;
+  static adios2::Params itsAdiosEngineParams;
+  static std::vector<adios2::Params> itsAdiosTransportParamsVec;
+
+  static bool itsUsingMpi;
 #ifdef HAVE_MPI
-  MPI_Comm itsMpiComm = MPI_COMM_WORLD;
+  static MPI_Comm itsMpiComm;
 #endif
-  std::string itsAdiosEngineType;
-  adios2::Params itsAdiosEngineParams;
-  std::vector<adios2::Params> itsAdiosTransportParamsVec;
 
 }; // end of class Adios2StMan
 

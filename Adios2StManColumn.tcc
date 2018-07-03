@@ -27,7 +27,7 @@ namespace casacore {
         class Adios2StManColumnT : public Adios2StManColumn {
             public:
                 Adios2StManColumnT(Adios2StMan *aParent, int aDataType, uInt aColNr,
-                        String aColName, adios2::IO aAdiosIO)
+                        String aColName, std::shared_ptr<adios2::IO> aAdiosIO)
                 :Adios2StManColumn(aParent, aDataType, aColNr, aColName, aAdiosIO)
                 {
                 }
@@ -36,7 +36,7 @@ namespace casacore {
                 {
                     itsAdiosShape[0] = aNrRows;
                     itsAdiosEngine = aAdiosEngine;
-                    itsAdiosVariable = itsAdiosIO.DefineVariable<T>(itsColumnName,
+                    itsAdiosVariable = itsAdiosIO->DefineVariable<T>(itsColumnName,
                             itsAdiosShape,
                             itsAdiosSingleRowStart,
                             itsAdiosSingleRowCount);
