@@ -31,7 +31,6 @@ namespace casacore {
                 :Adios2StManColumn(aParent, aDataType, aColNr, aColName, aAdiosIO)
                 {
                 }
-
                 void create(uInt aNrRows, std::shared_ptr<adios2::Engine> aAdiosEngine)
                 {
                     itsAdiosShape[0] = aNrRows;
@@ -45,9 +44,12 @@ namespace casacore {
                     Bool deleteIt;
                     itsAdiosSingleRowStart[0] = rownr;
                     itsAdiosVariable.SetSelection({itsAdiosSingleRowStart, itsAdiosSingleRowCount});
-                    const void *data = ((const Array<T> *)dataPtr)->getStorage(deleteIt);
+                    const void *data = (reinterpret_cast<const Array<T> *>(dataPtr))->getStorage(deleteIt);
                     itsAdiosEngine->Put(itsAdiosVariable, reinterpret_cast<const T*>(data));
                     ((const Array<Bool> *)dataPtr)->freeStorage((const Bool *&)data, deleteIt);
+                }
+                virtual void putV(uInt rownr, const void *dataPtr){
+                    itsAdiosEngine->Put(itsAdiosVariable, reinterpret_cast<const T*>(dataPtr));
                 }
             private:
                 adios2::Variable<T> itsAdiosVariable;

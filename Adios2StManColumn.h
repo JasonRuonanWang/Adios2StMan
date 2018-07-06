@@ -40,6 +40,20 @@ public:
   int getDataType();
   String getColumnName();
 
+  virtual void putV(uInt rownr, const void* dataPtr)=0;
+  virtual void putBoolV     (uInt aRowNr, const Bool* aDataPtr);
+  virtual void putCharV     (uInt aRownr, const Char* dataPtr);
+  virtual void putuCharV    (uInt aRowNr, const uChar* aDataPtr);
+  virtual void putShortV    (uInt aRowNr, const Short* aDataPtr);
+  virtual void putuShortV   (uInt aRowNr, const uShort* aDataPtr);
+  virtual void putIntV      (uInt aRowNr, const Int* aDataPtr);
+  virtual void putuIntV     (uInt aRowNr, const uInt* aDataPtr);
+  virtual void putfloatV    (uInt aRowNr, const Float* aDataPtr);
+  virtual void putdoubleV   (uInt aRowNr, const Double* aDataPtr);
+  virtual void putComplexV  (uInt aRowNr, const Complex* aDataPtr);
+  virtual void putDComplexV (uInt aRowNr, const DComplex* aDataPtr);
+  virtual void putStringV   (uInt aRowNr, const String* aDataPtr);
+
   // *** access a row for an array column ***
   virtual void getArrayV(uInt rownr, void *dataPtr);
 
@@ -63,7 +77,6 @@ protected:
                        void *dataPtr);
   virtual void getArrayCommonV(uint64_t rowStart, uint64_t nrRows,
                                const Slicer &ns, void *data);
-  virtual void putArrayCommonV(uint64_t row, const void *data);
 
   Adios2StMan *itsStManPtr;
 

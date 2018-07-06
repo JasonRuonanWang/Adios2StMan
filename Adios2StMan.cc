@@ -9,6 +9,7 @@ adios2::Params Adios2StMan::itsAdiosEngineParams;
 std::vector<adios2::Params> Adios2StMan::itsAdiosTransportParamsVec;
 
 #ifdef HAVE_MPI
+#warning "Adios2StMan compiled with MPI"
 
 MPI_Comm Adios2StMan::itsMpiComm = MPI_COMM_WORLD;
 
@@ -212,7 +213,7 @@ DataManagerColumn *Adios2StMan::makeColumnCommon(const String &name,
           break;
       case TpComplex:
       case TpArrayComplex:
-          aColumn = new Adios2StManColumnT<std::complex<float>>(this, aDataType, ncolumn(), name, itsAdiosIO);
+          aColumn = new Adios2StManColumnT<Complex>(this, aDataType, ncolumn(), name, itsAdiosIO);
           break;
       case TpDComplex:
       case TpArrayDComplex:

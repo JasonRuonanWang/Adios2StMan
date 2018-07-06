@@ -24,8 +24,11 @@ namespace casacore {
 Adios2StManColumn::Adios2StManColumn(Adios2StMan *aParent, int aDataType,
                                      uInt aColNr, String aColName, std::shared_ptr<adios2::IO> aAdiosIO)
     : StManColumn(aDataType), itsStManPtr(aParent), itsCasaDataType(aDataType),
-      itsCasaShape(0), itsAdiosIO(aAdiosIO)
+      itsCasaShape(0), itsAdiosIO(aAdiosIO), itsColumnName(aColName)
     {
+        itsAdiosShape.resize(1);
+        itsAdiosSingleRowStart.resize(1);
+        itsAdiosSingleRowCount.resize(1);
     }
 
 
@@ -57,7 +60,43 @@ int Adios2StManColumn::getDataType() { return itsCasaDataType; }
 // ------------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------------
 
-void Adios2StManColumn::putArrayCommonV(uint64_t row, const void *data) {}
+void Adios2StManColumn::putBoolV(uInt rownr, const Bool* dataPtr){
+    putV(rownr, &dataPtr);
+}
+void Adios2StManColumn::putCharV (uInt rownr, const Char* dataPtr){
+    putV(rownr, dataPtr);
+}
+void Adios2StManColumn::putuCharV (uInt rownr, const uChar* dataPtr){
+    putV(rownr, dataPtr);
+}
+void Adios2StManColumn::putShortV (uInt rownr, const Short* dataPtr){
+    putV(rownr, dataPtr);
+}
+void Adios2StManColumn::putuShortV (uInt rownr, const uShort* dataPtr){
+    putV(rownr, dataPtr);
+}
+void Adios2StManColumn::putIntV (uInt rownr, const Int* dataPtr){
+    putV(rownr, dataPtr);
+}
+void Adios2StManColumn::putuIntV (uInt rownr, const uInt* dataPtr){
+    putV(rownr, dataPtr);
+}
+void Adios2StManColumn::putfloatV (uInt rownr, const float* dataPtr){
+    putV(rownr, dataPtr);
+}
+void Adios2StManColumn::putdoubleV (uInt rownr, const double* dataPtr){
+    putV(rownr, dataPtr);
+}
+void Adios2StManColumn::putComplexV (uInt rownr, const Complex* dataPtr){
+//    putV(rownr, dataPtr);
+}
+void Adios2StManColumn::putDComplexV (uInt rownr, const DComplex* dataPtr){
+//    putV(rownr, dataPtr);
+}
+void Adios2StManColumn::putStringV (uInt rownr, const String* dataPtr){
+//    putV(rownr, dataPtr);
+}
+
 
 void Adios2StManColumn::getArrayCommonV(uint64_t rowStart, uint64_t nrRows,
                                         const Slicer &ns, void *data) {}

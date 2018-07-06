@@ -8,10 +8,12 @@ TARGET=libadios2stman.so
 SRC=Adios2StMan.cc Adios2StManColumn.cc
 DIRS=tests
 
-CXXFLAGS=-DHAVE_MPI
-
 $(TARGET):$(SRC)
-	$(CC) $(CXXFLAGS) $(SRC) -fPIC --shared -o $(TARGET) -lcasa_tables -lcasa_casa -ladios2 -std=c++11
+	g++ $(SRC) -fPIC --shared -o $(TARGET) -lcasa_tables -lcasa_casa -ladios2 -std=c++11
+
+mpi:$(SRC)
+	mpic++ $(SRC) -fPIC --shared -o $(TARGET) -lcasa_tables -lcasa_casa -ladios2 -std=c++11 -DHAVE_MPI
+
 
 ifdef CASA_LIB
 	cp $(TARGET) $(CASA_LIB)
