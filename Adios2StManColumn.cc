@@ -61,7 +61,7 @@ int Adios2StManColumn::getDataType() { return itsCasaDataType; }
 // ------------------------------------------------------------------------------------------------------
 
 void Adios2StManColumn::putBoolV(uInt rownr, const Bool* dataPtr){
-    putV(rownr, &dataPtr);
+    putV(rownr, dataPtr);
 }
 void Adios2StManColumn::putCharV (uInt rownr, const Char* dataPtr){
     putV(rownr, dataPtr);
@@ -88,13 +88,13 @@ void Adios2StManColumn::putdoubleV (uInt rownr, const double* dataPtr){
     putV(rownr, dataPtr);
 }
 void Adios2StManColumn::putComplexV (uInt rownr, const Complex* dataPtr){
-//    putV(rownr, dataPtr);
+    putV(rownr, dataPtr);
 }
 void Adios2StManColumn::putDComplexV (uInt rownr, const DComplex* dataPtr){
-//    putV(rownr, dataPtr);
+    putV(rownr, dataPtr);
 }
 void Adios2StManColumn::putStringV (uInt rownr, const String* dataPtr){
-//    putV(rownr, dataPtr);
+    putV(rownr, dataPtr);
 }
 
 

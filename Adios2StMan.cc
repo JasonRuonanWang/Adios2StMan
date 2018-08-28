@@ -104,8 +104,8 @@ void Adios2StMan::Adios2StManCommon(const std::string &engineType,
     }
 }
 
-DataManager *Adios2StMan::makeObject(const casa::String &aDataManType,
-                                     const casa::Record &spec) {
+DataManager *Adios2StMan::makeObject(const String &aDataManType,
+                                     const Record &spec) {
     if(Adios2StMan::itsUsingMpi){
 #ifdef HAVE_MPI
         return new Adios2StMan(itsMpiComm, itsAdiosEngineType, itsAdiosEngineParams, itsAdiosTransportParamsVec);
