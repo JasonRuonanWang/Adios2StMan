@@ -42,6 +42,8 @@
 #include <casacore/casa/namespace.h>
 #include <mpi.h>
 
+#include "common.h"
+
 int main(int argc, char **argv){
 
     int mpiRank, mpiSize;
@@ -63,6 +65,7 @@ int main(int argc, char **argv){
 
     IPosition array_pos = IPosition(2,5,6);
     Array<Bool> arr_Bool(array_pos);
+    Array<Char> arr_Char(array_pos);
     Array<uChar> arr_uChar(array_pos);
     Array<Short> arr_Short(array_pos);
     Array<uShort> arr_uShort(array_pos);
@@ -75,6 +78,7 @@ int main(int argc, char **argv){
 
     TableDesc td("", "1", TableDesc::Scratch);
     td.addColumn (ScalarColumnDesc<Bool>("scalar_Bool"));
+    td.addColumn (ScalarColumnDesc<Char>("scalar_Char"));
     td.addColumn (ScalarColumnDesc<uChar>("scalar_uChar"));
     td.addColumn (ScalarColumnDesc<Short>("scalar_Short"));
     td.addColumn (ScalarColumnDesc<uShort>("scalar_uShort"));
@@ -86,6 +90,7 @@ int main(int argc, char **argv){
     td.addColumn (ScalarColumnDesc<DComplex>("scalar_DComplex"));
 
     td.addColumn (ArrayColumnDesc<Bool>("array_Bool", array_pos, ColumnDesc::FixedShape));
+    td.addColumn (ArrayColumnDesc<Char>("array_Char", array_pos, ColumnDesc::FixedShape));
     td.addColumn (ArrayColumnDesc<uChar>("array_uChar", array_pos, ColumnDesc::FixedShape));
     td.addColumn (ArrayColumnDesc<Short>("array_Short", array_pos, ColumnDesc::FixedShape));
     td.addColumn (ArrayColumnDesc<uShort>("array_uShort", array_pos, ColumnDesc::FixedShape));
@@ -101,6 +106,7 @@ int main(int argc, char **argv){
     Table *tab = new Table(MPI_COMM_WORLD, newtab, NrRows);
 
     ScalarColumn<Bool> scalar_Bool (*tab, "scalar_Bool");
+    ScalarColumn<Char> scalar_Char (*tab, "scalar_Char");
     ScalarColumn<uChar> scalar_uChar (*tab, "scalar_uChar");
     ScalarColumn<Short> scalar_Short (*tab, "scalar_Short");
     ScalarColumn<uShort> scalar_uShort (*tab, "scalar_uShort");
@@ -112,6 +118,7 @@ int main(int argc, char **argv){
     ScalarColumn<DComplex> scalar_DComplex (*tab, "scalar_DComplex");
 
     ArrayColumn<Bool> array_Bool (*tab, "array_Bool");
+    ArrayColumn<Char> array_Char (*tab, "array_Char");
     ArrayColumn<uChar> array_uChar (*tab, "array_uChar");
     ArrayColumn<Short> array_Short (*tab, "array_Short");
     ArrayColumn<uShort> array_uShort (*tab, "array_uShort");
@@ -122,28 +129,27 @@ int main(int argc, char **argv){
     ArrayColumn<Complex> array_Complex (*tab, "array_Complex");
     ArrayColumn<DComplex> array_DComplex (*tab, "array_DComplex");
 
-    for (uInt i=0; i<NrRows; i++) {
-        scalar_Bool.put (mpiRank, mpiRank);
-        scalar_uChar.put (mpiRank, mpiRank);
-        scalar_Short.put (mpiRank, mpiRank);
-        scalar_uShort.put (mpiRank, mpiRank);
-        scalar_Int.put (mpiRank, mpiRank);
-        scalar_uInt.put (mpiRank, mpiRank);
-        scalar_Float.put (mpiRank, mpiRank);
-        scalar_Double.put (mpiRank, mpiRank);
-        scalar_Complex.put (mpiRank, mpiRank);
-        scalar_DComplex.put (mpiRank, mpiRank);
-        arr_Bool = 1; array_Bool.put(i, arr_Bool);
-        arr_uChar = 2; array_uChar.put(i, arr_uChar);
-        arr_Short = -3; array_Short.put(i, arr_Short);
-        arr_uShort = 4; array_uShort.put(i, arr_uShort);
-        indgen(arr_Int, (Int)i*100); array_Int.put(i, arr_Int);
-        indgen(arr_uInt, (uInt)i*100); array_uInt.put(i, arr_uInt);
-        indgen(arr_Float, (Float)i*100, (Float)0.1); array_Float.put(i, arr_Float);
-        indgen(arr_Double, (Double)i*100, (Double)0.01); array_Double.put(i, arr_Double);
-        indgen(arr_Complex, (Complex)i*100, (Complex)0.001); array_Complex.put(i, arr_Complex);
-        arr_DComplex = 5; array_DComplex.put(i, arr_DComplex);
-    }
+    scalar_Bool.put (mpiRank, mpiRank);
+    scalar_uChar.put (mpiRank, mpiRank);
+    scalar_Short.put (mpiRank, mpiRank);
+    scalar_uShort.put (mpiRank, mpiRank);
+    scalar_Int.put (mpiRank, mpiRank);
+    scalar_uInt.put (mpiRank, mpiRank);
+    scalar_Float.put (mpiRank, mpiRank);
+    scalar_Double.put (mpiRank, mpiRank);
+    scalar_Complex.put (mpiRank, mpiRank);
+    scalar_DComplex.put (mpiRank, mpiRank);
+    GenData(arr_Bool, array_pos, mpiRank); array_Bool.put(mpiRank, arr_Bool);
+    GenData(arr_Char, array_pos, mpiRank); array_Char.put(mpiRank, arr_Char);
+    GenData(arr_uChar, array_pos, mpiRank); array_uChar.put(mpiRank, arr_uChar);
+    GenData(arr_Short, array_pos, mpiRank); array_Short.put(mpiRank, arr_Short);
+    GenData(arr_uShort, array_pos, mpiRank); array_uShort.put(mpiRank, arr_uShort);
+    GenData(arr_Int, array_pos, mpiRank); array_Int.put(mpiRank, arr_Int);
+    GenData(arr_uInt, array_pos, mpiRank); array_uInt.put(mpiRank, arr_uInt);
+    GenData(arr_Float, array_pos, mpiRank); array_Float.put(mpiRank, arr_Float);
+    GenData(arr_Double, array_pos, mpiRank); array_Double.put(mpiRank, arr_Double);
+    GenData(arr_Complex, array_pos, mpiRank); array_Complex.put(mpiRank, arr_Complex);
+    GenData(arr_DComplex, array_pos, mpiRank); array_DComplex.put(mpiRank, arr_DComplex);
 
     delete stman;
     delete tab;

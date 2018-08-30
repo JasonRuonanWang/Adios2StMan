@@ -18,14 +18,14 @@ TARGET=writeScalar \
 	   readArrColumnSlice \
 	   readScalar
 
+mpi:writeMPI.cc $(STMANFILES)
+	$(MPICXX) -g writeMPI.cc $(CCFLAGS) $(LDFLAGS) $(STMANFILES) -o writeMPI -DHAVE_MPI
+
 all: $(TARGET) cl
 
 $(TARGET): $(TARGET:=.cc) $(STMANFILES)
 	$(CXX) $@.cc -o $@ $(CCFLAGS) $(LDFLAGS) $(STMANFILES) 
 
-
-mpi:writeMPI.cc
-	$(MPICXX) -g writeMPI.cc $(CCFLAGS) $(LDFLAGS) $(STMANFILES) -o writeMPI -DHAVE_MPI
 
 
 $(STMANFILES):  
@@ -35,6 +35,6 @@ cl:
 	rm -rf *.casa *.out
 
 clean:cl
-	rm -rf $(TARGET) *.dSYM *.so
+	rm -rf $(TARGET) *.dSYM *.so *.table
 
 re: clean all

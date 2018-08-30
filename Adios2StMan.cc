@@ -36,6 +36,8 @@ Adios2StMan::Adios2StMan(
     itsMpiComm = mpiComm;
     Adios2StManCommon(engineType, engineParams, transportParams);
 }
+#else
+#warning "Adios2StMan compiled without MPI"
 #endif
 
 Adios2StMan::Adios2StMan()

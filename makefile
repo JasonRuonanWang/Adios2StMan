@@ -8,11 +8,12 @@ TARGET=libadios2stman.so
 SRC=Adios2StMan.cc Adios2StManColumn.cc
 DIRS=tests
 
+mpi:$(SRC)
+	mpic++ $(SRC) -fPIC --shared -o $(TARGET) -lcasa_tables -lcasa_casa -ladios2 -std=c++11 -DHAVE_MPI
+
 $(TARGET):$(SRC)
 	g++ $(SRC) -fPIC --shared -o $(TARGET) -lcasa_tables -lcasa_casa -ladios2 -std=c++11
 
-mpi:$(SRC)
-	mpic++ $(SRC) -fPIC --shared -o $(TARGET) -lcasa_tables -lcasa_casa -ladios2 -std=c++11 -DHAVE_MPI
 
 
 ifdef CASA_LIB
@@ -37,5 +38,5 @@ clean:
 	rm -rf *.so
 	for d in $(DIRS); do( cd $$d; make clean);  done
 
-ln:$(TARGET)
+ln:mpi
 	for d in $(DIRS); do(cd $$d; rm -f $(TARGET); ln -sf ../$(TARGET) ./);  done
