@@ -29,6 +29,7 @@ Adios2StManColumn::Adios2StManColumn(Adios2StMan *aParent, int aDataType,
         itsAdiosShape.resize(1);
         itsAdiosSingleRowStart.resize(1);
         itsAdiosSingleRowCount.resize(1);
+        itsAdiosSingleRowCount[0] = 1;
     }
 
 
@@ -96,7 +97,6 @@ void Adios2StManColumn::putDComplexV (uInt rownr, const DComplex* dataPtr){
 void Adios2StManColumn::putStringV (uInt rownr, const String* dataPtr){
     putV(rownr, dataPtr);
 }
-
 
 void Adios2StManColumn::getArrayCommonV(uint64_t rowStart, uint64_t nrRows,
                                         const Slicer &ns, void *data) {}

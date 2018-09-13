@@ -23,36 +23,38 @@
 #include "Adios2StManColumn.h"
 
 namespace casacore {
-    template<class T>
-        class Adios2StManColumnT : public Adios2StManColumn {
-            public:
-                Adios2StManColumnT(Adios2StMan *aParent, int aDataType, uInt aColNr,
-                        String aColName, std::shared_ptr<adios2::IO> aAdiosIO)
+    template<class T> class Adios2StManColumnT : public Adios2StManColumn
+    {
+        public:
+            Adios2StManColumnT(Adios2StMan *aParent, int aDataType, uInt aColNr,
+                    String aColName, std::shared_ptr<adios2::IO> aAdiosIO)
                 :Adios2StManColumn(aParent, aDataType, aColNr, aColName, aAdiosIO)
-                {
-                }
-                void create(uInt aNrRows, std::shared_ptr<adios2::Engine> aAdiosEngine)
-                {
-                    itsAdiosShape[0] = aNrRows;
-                    itsAdiosEngine = aAdiosEngine;
-                    itsAdiosVariable = itsAdiosIO->DefineVariable<T>(itsColumnName,
-                            itsAdiosShape,
-                            itsAdiosSingleRowStart,
-                            itsAdiosSingleRowCount);
-                }
-                virtual void putArrayV(uInt rownr, const void *dataPtr){
-                    Bool deleteIt;
-                    itsAdiosSingleRowStart[0] = rownr;
-                    itsAdiosVariable.SetSelection({itsAdiosSingleRowStart, itsAdiosSingleRowCount});
-                    const void *data = (reinterpret_cast<const Array<T> *>(dataPtr))->getStorage(deleteIt);
-                    itsAdiosEngine->Put(itsAdiosVariable, reinterpret_cast<const T*>(data));
-                    ((const Array<Bool> *)dataPtr)->freeStorage((const Bool *&)data, deleteIt);
-                }
-                virtual void putV(uInt rownr, const void *dataPtr){
-                    itsAdiosEngine->Put(itsAdiosVariable, reinterpret_cast<const T*>(dataPtr));
-                }
-            private:
-                adios2::Variable<T> itsAdiosVariable;
-        };
+            {
+            }
+            void create(uInt aNrRows, std::shared_ptr<adios2::Engine> aAdiosEngine)
+            {
+                itsAdiosShape[0] = aNrRows;
+                itsAdiosEngine = aAdiosEngine;
+                itsAdiosVariable = itsAdiosIO->DefineVariable<T>(itsColumnName,
+                        itsAdiosShape,
+                        itsAdiosSingleRowStart,
+                        itsAdiosSingleRowCount);
+            }
+            virtual void putArrayV(uInt rownr, const void *dataPtr){
+                Bool deleteIt;
+                itsAdiosSingleRowStart[0] = rownr;
+                itsAdiosVariable.SetSelection({itsAdiosSingleRowStart, itsAdiosSingleRowCount});
+                const T *data = (reinterpret_cast<const Array<T> *>(dataPtr))->getStorage(deleteIt);
+                itsAdiosEngine->Put(itsAdiosVariable, data);
+                (reinterpret_cast<const Array<T> *>(dataPtr))->freeStorage(reinterpret_cast<const T *&>(data), deleteIt);
+            }
+            virtual void putV(uInt rownr, const void *dataPtr){
+                itsAdiosSingleRowStart[0] = rownr;
+                itsAdiosVariable.SetSelection({itsAdiosSingleRowStart, itsAdiosSingleRowCount});
+                itsAdiosEngine->Put(itsAdiosVariable, reinterpret_cast<const T*>(dataPtr));
+            }
+        private:
+            adios2::Variable<T> itsAdiosVariable;
+    };
 }
 #endif

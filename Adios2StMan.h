@@ -91,7 +91,7 @@ private:
 
 }; // end of class Adios2StMan
 
-extern "C" void register_adiosstman();
+extern "C" void register_adios2stman();
 } // end of namespace casa
 
 #endif

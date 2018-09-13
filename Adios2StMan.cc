@@ -9,7 +9,7 @@ adios2::Params Adios2StMan::itsAdiosEngineParams;
 std::vector<adios2::Params> Adios2StMan::itsAdiosTransportParamsVec;
 
 #ifdef HAVE_MPI
-#warning "Adios2StMan compiled with MPI"
+//#warning "Adios2StMan compiled with MPI"
 
 MPI_Comm Adios2StMan::itsMpiComm = MPI_COMM_WORLD;
 
@@ -37,7 +37,7 @@ Adios2StMan::Adios2StMan(
     Adios2StManCommon(engineType, engineParams, transportParams);
 }
 #else
-#warning "Adios2StMan compiled without MPI"
+//#warning "Adios2StMan compiled without MPI"
 #endif
 
 Adios2StMan::Adios2StMan()
@@ -244,7 +244,8 @@ Bool Adios2StMan::flush(AipsIO &ios, Bool doFsync) {
 
 String Adios2StMan::dataManagerName() const { return itsDataManName; }
 
-void register_adiosstman() {
+void register_adios2stman() {
   DataManager::registerCtor("Adios2StMan", Adios2StMan::makeObject);
 }
+
 }
