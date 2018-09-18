@@ -31,14 +31,17 @@ namespace casacore {
                 :Adios2StManColumn(aParent, aDataType, aColNr, aColName, aAdiosIO)
             {
             }
-            void create(uInt aNrRows, std::shared_ptr<adios2::Engine> aAdiosEngine)
+            void create(uInt aNrRows, std::shared_ptr<adios2::Engine> aAdiosEngine, char aOpenMode)
             {
                 itsAdiosShape[0] = aNrRows;
                 itsAdiosEngine = aAdiosEngine;
-                itsAdiosVariable = itsAdiosIO->DefineVariable<T>(itsColumnName,
-                        itsAdiosShape,
-                        itsAdiosSingleRowStart,
-                        itsAdiosSingleRowCount);
+                itsAdiosVariable = itsAdiosIO->InquireVariable<T>(itsColumnName);
+                if(!itsAdiosVariable && aOpenMode == 'w'){
+                    itsAdiosVariable = itsAdiosIO->DefineVariable<T>(itsColumnName,
+                            itsAdiosShape,
+                            itsAdiosSingleRowStart,
+                            itsAdiosSingleRowCount);
+                }
             }
             virtual void putArrayV(uInt rownr, const void *dataPtr){
                 Bool deleteIt;
@@ -52,6 +55,16 @@ namespace casacore {
                 itsAdiosSingleRowStart[0] = rownr;
                 itsAdiosVariable.SetSelection({itsAdiosSingleRowStart, itsAdiosSingleRowCount});
                 itsAdiosEngine->Put(itsAdiosVariable, reinterpret_cast<const T*>(dataPtr));
+            }
+            virtual void getArrayCommonV(uint64_t rowStart, uint64_t nrRows, const Slicer &ns, void *data) {
+                itsAdiosSingleRowStart[0] = rowStart;
+                itsAdiosSingleRowCount[0] = nrRows;
+                for (int i=1; i<=itsAdiosShape.size(); i++){
+                    itsAdiosSingleRowStart[i] = ns.start()(i-1);
+                    itsAdiosSingleRowCount[i] = ns.length()(i-1);
+                }
+                itsAdiosVariable.SetSelection({itsAdiosSingleRowStart, itsAdiosSingleRowCount});
+                itsAdiosEngine->Get<T>(itsAdiosVariable, reinterpret_cast<T*>(data), adios2::Mode::Sync);
             }
         private:
             adios2::Variable<T> itsAdiosVariable;

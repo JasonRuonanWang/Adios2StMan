@@ -21,17 +21,12 @@
 #include <casacore/tables/Tables/ArrayColumn.h>
 #include <casacore/casa/namespace.h>
 
-int main(int argc, char **argv){
-    if (argc < 2){
-        cout << "./rAdiosStMan /path/to/file" << endl;
-        return -1;
-    }
-    string filename = argv[1];
+string filename = "aaa.table";
+uInt gettingRow = 0;
+
+void ReadFunction(){
+
     Table casa_table(filename);
-    uInt gettingRow = 1;
-    if (argc == 3){
-        gettingRow = atoi(argv[2]);
-    }
 
     ROArrayColumn<Bool> array_Bool(casa_table, "array_Bool");
     Array<Bool> arr_Bool = array_Bool.get(gettingRow);
@@ -42,6 +37,7 @@ int main(int argc, char **argv){
         if ((i+1) % (arr_Bool.shape())(0) == 0)
             cout << endl;
     }
+
 
     ROArrayColumn<uChar> array_uChar(casa_table, "array_uChar");
     Array<uChar> arr_uChar = array_uChar.get(gettingRow);
@@ -132,6 +128,25 @@ int main(int argc, char **argv){
         if ((i+1) % (arr_DComplex.shape())(0) == 0)
             cout << endl;
     }
+
+}
+
+int main(int argc, char **argv){
+    int mpiRank, mpiSize;
+    MPI_Init(&argc,&argv);
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpiRank);
+    MPI_Comm_size(MPI_COMM_WORLD, &mpiSize);
+
+    if (argc >= 2){
+        filename = argv[1];
+    }
+    if (argc >= 3){
+        gettingRow = atoi(argv[2]);
+    }
+
+    ReadFunction();
+
+    MPI_Finalize();
 
     return 0;
 }

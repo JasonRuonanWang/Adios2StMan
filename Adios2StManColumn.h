@@ -32,7 +32,7 @@ public:
   Adios2StManColumn(Adios2StMan *aParent, int aDataType, uInt aColNr,
                     String aColName, std::shared_ptr<adios2::IO> aAdiosIO);
 
-  virtual void create(uInt aNrRows, std::shared_ptr<adios2::Engine> aAdiosEngine)=0;
+  virtual void create(uInt aNrRows, std::shared_ptr<adios2::Engine> aAdiosEngine, char aOpenMode)=0;
   virtual void setShapeColumn(const IPosition& aShape);
   virtual IPosition shape(uInt aRowNr);
 
@@ -76,7 +76,7 @@ protected:
   void getArrayWrapper(uint64_t rowStart, uint64_t nrRows, const Slicer &ns,
                        void *dataPtr);
   virtual void getArrayCommonV(uint64_t rowStart, uint64_t nrRows,
-                               const Slicer &ns, void *data);
+                               const Slicer &ns, void *data) = 0;
 
   Adios2StMan *itsStManPtr;
 

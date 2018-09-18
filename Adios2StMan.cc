@@ -132,21 +132,29 @@ String Adios2StMan::dataManagerType() const { return itsDataManName; }
 void Adios2StMan::addRow(uInt aNrRows) {}
 
 void Adios2StMan::create(uInt aNrRows) {
-  itsNrRows = aNrRows;
-  itsAdiosEngine = std::make_shared<adios2::Engine>(itsAdiosIO->Open(fileName(), adios2::Mode::Write));
-  for(int i=0; i<ncolumn(); ++i){
-      itsColumnPtrBlk[i]->create(aNrRows, itsAdiosEngine);
-  }
-  itsAdiosEngine->BeginStep();
+    itsOpenMode = 'w';
+    itsNrRows = aNrRows;
+    itsAdiosEngine = std::make_shared<adios2::Engine>(itsAdiosIO->Open(fileName(), adios2::Mode::Write));
+    for(int i=0; i<ncolumn(); ++i){
+        itsColumnPtrBlk[i]->create(aNrRows, itsAdiosEngine, itsOpenMode);
+    }
+    itsAdiosEngine->BeginStep();
 }
 
 void Adios2StMan::open(uInt aNrRows, AipsIO &ios) {
-  ios.getstart(itsDataManName);
-  ios >> itsDataManName;
-  ios >> itsStManColumnType;
-  ios.getend();
+    itsOpenMode = 'r';
+    itsNrRows = aNrRows;
+    itsAdiosEngine = std::make_shared<adios2::Engine>(itsAdiosIO->Open(fileName(), adios2::Mode::Read));
+    for(int i=0; i<ncolumn(); ++i){
+        itsColumnPtrBlk[i]->create(aNrRows, itsAdiosEngine, itsOpenMode);
+    }
+    itsAdiosEngine->BeginStep();
 
-  itsNrRows = aNrRows;
+    ios.getstart(itsDataManName);
+    ios >> itsDataManName;
+    ios >> itsStManColumnType;
+    ios.getend();
+    itsNrRows = aNrRows;
 }
 
 void Adios2StMan::deleteManager() {}

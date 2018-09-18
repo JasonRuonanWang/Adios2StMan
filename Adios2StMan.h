@@ -79,6 +79,7 @@ private:
   std::shared_ptr<adios2::IO> itsAdiosIO;
   std::shared_ptr<adios2::Engine> itsAdiosEngine;
 
+  char itsOpenMode;
 
   static std::string itsAdiosEngineType;
   static adios2::Params itsAdiosEngineParams;

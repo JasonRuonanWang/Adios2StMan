@@ -98,8 +98,6 @@ void Adios2StManColumn::putStringV (uInt rownr, const String* dataPtr){
     putV(rownr, dataPtr);
 }
 
-void Adios2StManColumn::getArrayCommonV(uint64_t rowStart, uint64_t nrRows,
-                                        const Slicer &ns, void *data) {}
 
 // *** access a row for an array column ***
 
