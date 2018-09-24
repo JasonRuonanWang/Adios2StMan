@@ -59,7 +59,7 @@ namespace casacore {
             virtual void getArrayCommonV(uint64_t rowStart, uint64_t nrRows, const Slicer &ns, void *data) {
                 itsAdiosSingleRowStart[0] = rowStart;
                 itsAdiosSingleRowCount[0] = nrRows;
-                for (int i=1; i<=itsAdiosShape.size(); i++){
+                for (int i=1; i<itsAdiosShape.size(); i++){
                     itsAdiosSingleRowStart[i] = ns.start()(i-1);
                     itsAdiosSingleRowCount[i] = ns.length()(i-1);
                 }

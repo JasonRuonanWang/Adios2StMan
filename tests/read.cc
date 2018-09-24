@@ -38,7 +38,6 @@ void ReadFunction(){
             cout << endl;
     }
 
-
     ROArrayColumn<uChar> array_uChar(casa_table, "array_uChar");
     Array<uChar> arr_uChar = array_uChar.get(gettingRow);
     Vector<uChar> vec_uChar = arr_uChar.reform(IPosition(1,arr_uChar.nelements()));
