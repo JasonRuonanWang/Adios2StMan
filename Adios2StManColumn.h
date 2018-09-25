@@ -71,29 +71,10 @@ public:
     virtual void getDComplexV(uInt aRowNr, DComplex *aDataPtr);
     virtual void getStringV(uInt aRowNr, String *aDataPtr);
 
-    // *** access a row for an array column ***
-    virtual void getArrayV(uInt rownr, void *dataPtr);
-
-    // *** access a slice of a row for an array column ***
-    // *** inactive by default
-    // *** only active when canAccessSlice() returns true in child class
-    virtual void getSliceV(uInt aRowNr, const Slicer &ns, void *dataPtr);
-
-    // *** access all rows for an array column ***
-    // *** inactive by default
-    // *** only active when canAccessArrayColumn() returns true in child class
-    virtual void getArrayColumnV(void *dataPtr);
-
-    // *** access a slice of all rows for an array column ***
-    // *** inactive by default
-    // *** only active when canAccessColumnSlice() returns true in child class
-    virtual void getColumnSliceV(const Slicer &ns, void *dataPtr);
 
 protected:
     void getArrayWrapper(uint64_t rowStart, uint64_t nrRows, const Slicer &ns,
                          void *dataPtr);
-    virtual void getArrayCommonV(uint64_t rowStart, uint64_t nrRows,
-                                 const Slicer &ns, void *data) = 0;
 
     Adios2StMan *itsStManPtr;
 
@@ -107,9 +88,122 @@ protected:
     std::shared_ptr<adios2::Engine> itsAdiosEngine;
     std::string itsAdiosDataType;
     adios2::Dims itsAdiosShape;
-    adios2::Dims itsAdiosSingleRowStart;
-    adios2::Dims itsAdiosSingleRowCount;
+    adios2::Dims itsAdiosStart;
+    adios2::Dims itsAdiosCount;
 };
-}
+
+
+template <class T>
+class Adios2StManColumnT : public Adios2StManColumn
+{
+public:
+    Adios2StManColumnT(Adios2StMan *aParent, int aDataType, uInt aColNr,
+                       String aColName, std::shared_ptr<adios2::IO> aAdiosIO)
+    : Adios2StManColumn(aParent, aDataType, aColNr, aColName, aAdiosIO)
+    {
+    }
+    void create(uInt aNrRows, std::shared_ptr<adios2::Engine> aAdiosEngine,
+                char aOpenMode)
+    {
+        itsAdiosShape[0] = aNrRows;
+        itsAdiosEngine = aAdiosEngine;
+        itsAdiosVariable = itsAdiosIO->InquireVariable<T>(itsColumnName);
+        if (!itsAdiosVariable && aOpenMode == 'w')
+        {
+            itsAdiosVariable = itsAdiosIO->DefineVariable<T>(
+                itsColumnName, itsAdiosShape, itsAdiosStart,
+                itsAdiosCount);
+        }
+    }
+    virtual void putArrayV(uInt rownr, const void *dataPtr)
+    {
+        Bool deleteIt;
+        itsAdiosStart[0] = rownr;
+        itsAdiosVariable.SetSelection(
+            {itsAdiosStart, itsAdiosCount});
+        const T *data =
+            (reinterpret_cast<const Array<T> *>(dataPtr))->getStorage(deleteIt);
+        itsAdiosEngine->Put(itsAdiosVariable, data);
+        (reinterpret_cast<const Array<T> *>(dataPtr))
+            ->freeStorage(reinterpret_cast<const T *&>(data), deleteIt);
+    }
+    virtual void putScalarV(uInt rownr, const void *dataPtr)
+    {
+        itsAdiosStart[0] = rownr;
+        itsAdiosVariable.SetSelection(
+            {itsAdiosStart, itsAdiosCount});
+        itsAdiosEngine->Put(itsAdiosVariable,
+                            reinterpret_cast<const T *>(dataPtr));
+    }
+    virtual void getArrayV(uInt aRowNr, void *dataPtr)
+    {
+        itsAdiosStart[0] = aRowNr;
+        itsAdiosCount[0] = 1;
+        for (int i = 1; i < itsAdiosShape.size(); ++i)
+        {
+            itsAdiosStart[i] = 0;
+            itsAdiosCount[i] = itsAdiosShape[i];
+        }
+        itsAdiosVariable.SetSelection({itsAdiosStart, itsAdiosCount});
+        Bool deleteIt;
+        T *data = (reinterpret_cast<Array<T>*>(dataPtr))->getStorage(deleteIt);
+        itsAdiosEngine->Get<T>(itsAdiosVariable, data,adios2::Mode::Sync);
+        reinterpret_cast<Array<T>*>(dataPtr)->putStorage(reinterpret_cast<T *&>(data), deleteIt);
+    }
+    virtual void getSliceV(uInt aRowNr, const Slicer &ns, void *dataPtr)
+    {
+        itsAdiosStart[0] = aRowNr;
+        itsAdiosCount[0] = 1;
+        for (int i = 1; i < itsAdiosShape.size(); ++i)
+        {
+            itsAdiosStart[i] = ns.start()(i - 1);
+            itsAdiosCount[i] = ns.length()(i - 1);
+        }
+        itsAdiosVariable.SetSelection({itsAdiosStart, itsAdiosCount});
+        Bool deleteIt;
+        T *data = (reinterpret_cast<Array<T>*>(dataPtr))->getStorage(deleteIt);
+        itsAdiosEngine->Get<T>(itsAdiosVariable, data,adios2::Mode::Sync);
+        reinterpret_cast<Array<T>*>(dataPtr)->putStorage(reinterpret_cast<T *&>(data), deleteIt);
+    }
+    virtual void getArrayColumnV(void *dataPtr)
+    {
+        for(auto &i:itsAdiosStart){
+            i=0;
+        }
+        itsAdiosVariable.SetSelection({itsAdiosStart, itsAdiosShape});
+        Bool deleteIt;
+        T *data = (reinterpret_cast<Array<T>*>(dataPtr))->getStorage(deleteIt);
+        itsAdiosEngine->Get<T>(itsAdiosVariable, data,adios2::Mode::Sync);
+        reinterpret_cast<Array<T>*>(dataPtr)->putStorage(reinterpret_cast<T *&>(data), deleteIt);
+    }
+    virtual void getColumnSliceV(const Slicer &ns, void *dataPtr)
+    {
+        itsAdiosStart[0] = 0;
+        itsAdiosCount[0] = itsAdiosShape[0];
+        for (int i = 1; i < itsAdiosShape.size(); ++i)
+        {
+            itsAdiosStart[i] = ns.start()(i - 1);
+            itsAdiosCount[i] = ns.length()(i - 1);
+        }
+        itsAdiosVariable.SetSelection({itsAdiosStart, itsAdiosCount});
+        Bool deleteIt;
+        T *data = (reinterpret_cast<Array<T>*>(dataPtr))->getStorage(deleteIt);
+        itsAdiosEngine->Get<T>(itsAdiosVariable, data,adios2::Mode::Sync);
+        reinterpret_cast<Array<T>*>(dataPtr)->putStorage(reinterpret_cast<T *&>(data), deleteIt);
+    }
+    virtual void getScalarV(uInt aRowNr, void *data)
+    {
+        itsAdiosStart[0] = aRowNr;
+        itsAdiosCount[0] = 1;
+        itsAdiosVariable.SetSelection({itsAdiosStart, itsAdiosCount});
+        itsAdiosEngine->Get<T>(itsAdiosVariable, reinterpret_cast<T *>(data),
+                               adios2::Mode::Sync);
+    }
+
+private:
+    adios2::Variable<T> itsAdiosVariable;
+};
+
+} // namespace casacore
 
 #endif

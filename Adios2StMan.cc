@@ -1,4 +1,4 @@
-#include "Adios2StManColumn.tcc"
+#include "Adios2StManColumn.h"
 #include <casacore/casa/Containers/Record.h>
 
 namespace casacore
